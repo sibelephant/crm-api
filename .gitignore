@@ -64,5 +64,6 @@ pids/
 *.seed
 *.pid.lock
 phase3.walkthrough.md
+phase4.walkthrough.md
 spec.md
 task.md

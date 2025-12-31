@@ -6,11 +6,14 @@ import {
     Matches,
     IsNotEmpty,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
+    @ApiProperty({ example: 'user@example.com' })
     @IsEmail()
     email: string;
 
+    @ApiProperty({ example: 'StrongP@ssw0rd!', minLength: 8, description: 'Must contain uppercase, lowercase, number, special char' })
     @IsString()
     @MinLength(8)
     @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/, {
@@ -19,11 +22,13 @@ export class RegisterDto {
     })
     password: string;
 
+    @ApiProperty({ example: 'John' })
     @IsString()
     @IsNotEmpty()
     @MaxLength(50)
     firstName: string;
 
+    @ApiProperty({ example: 'Doe' })
     @IsString()
     @IsNotEmpty()
     @MaxLength(50)
@@ -31,15 +36,18 @@ export class RegisterDto {
 }
 
 export class LoginDto {
+    @ApiProperty({ example: 'user@example.com' })
     @IsEmail()
     email: string;
 
+    @ApiProperty({ example: 'StrongP@ssw0rd!' })
     @IsString()
     @IsNotEmpty()
     password: string;
 }
 
 export class RefreshTokenDto {
+    @ApiProperty()
     @IsString()
     @IsNotEmpty()
     refreshToken: string;

@@ -13,9 +13,14 @@ export class TransformInterceptor<T> implements NestInterceptor<T, any> {
         const request = context.switchToHttp().getRequest();
 
         return next.handle().pipe(
-            map(data => {
-                // If data already has the standard format, return as is
-                if (data && typeof data === 'object' && 'success' in data) {
+            map((data) => {
+                // If data already has the standard format (has data AND meta), return as is
+                if (
+                    data &&
+                    typeof data === 'object' &&
+                    'data' in data &&
+                    'meta' in data
+                ) {
                     return data;
                 }
 
