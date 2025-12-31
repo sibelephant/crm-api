@@ -1,0 +1,93 @@
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Patch,
+    Param,
+    Delete,
+    Query,
+    UseGuards,
+    ParseIntPipe,
+    DefaultValuePipe,
+    HttpCode,
+    HttpStatus,
+    Request,
+    ForbiddenException,
+} from '@nestjs/common';
+import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { Role } from '@prisma/client';
+
+@Controller('users')
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class UsersController {
+    constructor(private readonly usersService: UsersService) { }
+
+    @Post()
+    @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+    create(@Body() createUserDto: CreateUserDto) {
+        return this.usersService.create(createUserDto);
+    }
+
+    @Get()
+    @Roles(Role.ADMIN, Role.SUPER_ADMIN)
+    findAll(
+        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+        @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    ) {
+        return this.usersService.findAll(page, limit);
+    }
+
+    @Get(':id')
+    @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.MANAGER, Role.USER)
+    findOne(@Param('id') id: string, @Request() req: any) {
+        // Users can only view their own profile unless they are ADMIN or SUPER_ADMIN
+        if (
+            req.user.role !== Role.ADMIN &&
+            req.user.role !== Role.SUPER_ADMIN &&
+            req.user.id !== id
+        ) {
+            throw new ForbiddenException('You can only view your own profile');
+        }
+
+        return this.usersService.findOne(id);
+    }
+
+    @Patch(':id')
+    @Roles(Role.ADMIN, Role.SUPER_ADMIN, Role.MANAGER, Role.USER)
+    update(
+        @Param('id') id: string,
+        @Body() updateUserDto: UpdateUserDto,
+        @Request() req: any,
+    ) {
+        // Users can only update their own profile unless they are ADMIN or SUPER_ADMIN
+        if (
+            req.user.role !== Role.ADMIN &&
+            req.user.role !== Role.SUPER_ADMIN &&
+            req.user.id !== id
+        ) {
+            throw new ForbiddenException('You can only update your own profile');
+        }
+
+        return this.usersService.update(id, updateUserDto);
+    }
+
+    @Patch(':id/role')
+    @Roles(Role.SUPER_ADMIN)
+    updateRole(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
+        return this.usersService.updateRole(id, updateRoleDto);
+    }
+
+    @Delete(':id')
+    @Roles(Role.SUPER_ADMIN)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    remove(@Param('id') id: string) {
+        return this.usersService.remove(id);
+    }
+}

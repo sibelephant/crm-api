@@ -8,6 +8,11 @@ import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { UsersModule } from './users/users.module';
+import { CompaniesModule } from './companies/companies.module';
+import { ContactsModule } from './contacts/contacts.module';
+import { DealsModule } from './deals/deals.module';
+import { ActivitiesModule } from './activities/activities.module';
 
 @Module({
   imports: [
@@ -22,6 +27,11 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
     ]),
     DatabaseModule,
     AuthModule,
+    UsersModule,
+    CompaniesModule,
+    ContactsModule,
+    DealsModule,
+    ActivitiesModule,
   ],
   controllers: [AppController],
   providers: [
